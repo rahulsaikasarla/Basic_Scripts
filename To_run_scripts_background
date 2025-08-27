@@ -1,0 +1,52 @@
+How to Achieve This: Use systemd to Run Your Scripts as Background Services
+This lets your scripts run continuously in the background, start automatically on boot, and send email alerts as soon as thresholds are crossed.
+
+Step-by-step guide to set up systemd services:
+Create systemd service files for each monitor script
+
+For example, for memory monitor:
+
+bash
+sudo nano /etc/systemd/system/monitor_memory.service
+Paste this content (replace /full/path/to/ with the actual script path):
+
+###################################################
+[Unit]
+Description=Memory Utilization Monitor Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/full/path/to/monitor_memory.sh
+Restart=always
+User=your-username
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=monitor_memory
+
+[Install]
+WantedBy=multi-user.target
+######################################################
+Repeat for the disk and CPU scripts, changing service names and ExecStart paths accordingly.
+
+Reload systemd to recognize new services:
+
+bash
+sudo systemctl daemon-reload
+Enable services to start on boot:
+
+bash
+sudo systemctl enable monitor_memory.service
+sudo systemctl enable monitor_disk.service
+sudo systemctl enable monitor_cpu.service
+Start the services now:
+
+bash
+sudo systemctl start monitor_memory.service
+sudo systemctl start monitor_disk.service
+sudo systemctl start monitor_cpu.service
+Check status and logs:
+
+bash
+sudo systemctl status monitor_memory.service
+journalctl -u monitor_memory.service -f
